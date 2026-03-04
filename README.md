@@ -527,7 +527,7 @@ Requires `X-Admin-Token` header for all requests.
 ## Policy Document Lifecycle
 
 ```
-1. Author writes business rules in Markdown
+1. Author writes business rules/uploads in docx,pdf or markdown
           ↓
 2. POST /kb/upload
    (raw_content stored in kb_raw_uploads)
@@ -552,23 +552,6 @@ Requires `X-Admin-Token` header for all requests.
           ↓
 9. Active policy live — agents query Weaviate at resolution time
 ```
-
----
-
-## KB Bridge — 6-Layer Validation Pipeline
-
-The `KBBridge` class (`app/l15_preprocessing/kb_bridge_main.py`) is the compiler's validation core. Every document passes through six layers before being accepted:
-
-| Layer | Validator | What It Checks |
-|---|---|---|
-| 1 | `StructuralValidator` | Required fields, types, schema shape |
-| 2 | `EnumValidator` | Valid enum values (domain, category, risk_level, etc.) |
-| 3 | `ConditionTreeValidator` | Logical consistency of rule conditions |
-| 4 | `DependencyValidator` | Cross-document dependencies, execution order conflicts |
-| 5 | `VersionValidator` | Semantic version increment correctness |
-| 6 | `Canonicalizer` | Normalizes structure, generates deterministic SHA-256 hash |
-
-A document failing any layer returns structured errors with codes, locations, and fix suggestions. No partial writes.
 
 ---
 
@@ -635,12 +618,6 @@ kirana_kart/
 │   │       ├── raw_storage_service.py
 │   │       └── markdown_converter.py
 │   │
-│   ├── l15_preprocessing/
-│   │   ├── kb_bridge.py          # Entry point
-│   │   ├── kb_bridge_main.py     # KBBridge class + DB helpers
-│   │   ├── kb_bridge_core.py     # Core validators (Structural, Enum, Condition)
-│   │   ├── kb_bridge_validators.py # Extended validators (Dependency, Version, Business)
-│   │   └── kb_test.py
 │   │
 │   ├── l45_ml_platform/
 │   │   ├── compiler/
