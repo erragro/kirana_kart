@@ -1,0 +1,27 @@
+# Environment variables
+.env
+.env.*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+logs/
+*.log
+
+# Mac
+.DS_Store
+
+# Virtual env
+venv/
+.envrc
+
+# IDE
+.vscode/
+.idea/
+
+# Test artifacts
+*.sqlite
