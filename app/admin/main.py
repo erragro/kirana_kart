@@ -3,6 +3,7 @@
 import threading
 import time
 import os
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from dotenv import load_dotenv
 
@@ -37,11 +38,23 @@ engine = create_engine(
 # App Initialization
 # ------------------------------------------------------------
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    start_background_worker()
+    yield
+    # Shutdown
+    global _worker_running
+    _worker_running = False
+    print("Governance service shutting down...")
+
+
 app = FastAPI(
     title="Kirana Kart Governance Control Plane",
     version="3.3.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # ------------------------------------------------------------
@@ -61,6 +74,10 @@ app.include_router(compiler_router)
 app.include_router(vector_router)
 app.include_router(simulation_router)
 app.include_router(shadow_router)
+
+# NOTE: Cardinal ingest routes live in the separate Cardinal plane.
+# Run that service via: uvicorn main:app --port 8000
+# This governance plane runs on:  uvicorn app.admin.main:app --port 8001
 
 # ------------------------------------------------------------
 # VECTOR BACKGROUND WORKER
@@ -119,18 +136,6 @@ def start_background_worker():
 # ------------------------------------------------------------
 # FASTAPI LIFECYCLE EVENTS
 # ------------------------------------------------------------
-
-@app.on_event("startup")
-def startup_event():
-    start_background_worker()
-
-
-@app.on_event("shutdown")
-def shutdown_event():
-    global _worker_running
-    _worker_running = False
-    print("Governance service shutting down...")
-
 
 # ------------------------------------------------------------
 # HEALTH CHECK

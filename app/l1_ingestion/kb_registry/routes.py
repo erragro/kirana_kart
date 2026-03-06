@@ -15,7 +15,7 @@ This layer:
 
 from fastapi import APIRouter, HTTPException
 from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 from pathlib import Path
@@ -68,7 +68,8 @@ class UploadRequest(BaseModel):
     uploaded_by: str
     version_label: str
 
-    @validator("raw_content")
+    @field_validator("raw_content")
+    @classmethod
     def validate_content(cls, v):
         if not v or not v.strip():
             raise ValueError("raw_content cannot be empty")
